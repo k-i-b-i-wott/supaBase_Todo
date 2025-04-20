@@ -1,0 +1,108 @@
+.todo-form{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+form{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 600px;
+  box-sizing: border-box;
+  padding: 0.4 rem;
+  margin: 0.4 rem;
+}
+
+input{
+  padding: 0.4 rem;
+  margin: 0.4 rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  outline: none;
+  font-size: 1.3rem;
+}
+textarea{
+  padding: 0.4 rem;
+  margin: 0.4 rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: .1rem;
+  outline: none;
+  font-size: 1.5rem;
+  padding: 1rem;
+}
+button{
+  padding: 0.4 rem;
+  width: 100%;
+  border-radius: .5rem;
+  background-color: rgb(111, 154, 234);
+}
+
+
+ul{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+gap: .3rem;
+  max-width: 40rem;
+  box-sizing: border-box;
+  padding: 0.4 rem;
+  margin: 0.4 rem;
+  color: #fff;
+}
+li{
+  padding: 0.4 rem;
+  margin: 0.4 rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1rem;
+  outline: none;
+  font-size: 1rem;
+  padding: 1rem;
+  background-color: rgb(50, 51, 52);
+  border-radius: .5rem;
+}
+
+.task{
+  display: flex;
+  flex-direction: column;
+  gap: .3rem;
+  font-size: .9rem;
+  align-items: center;
+}
+.actions{
+  display: flex;
+  flex-direction: row;
+  gap: .3rem;
+}
+
+.edit{
+  padding: 0.4 rem;
+  width: 100%;
+  border-radius: .5rem;
+  background-color: rgb(37, 239, 10);
+}
+.delete{
+  padding: 0.4 rem;
+  width: 100%;
+  border-radius: .5rem;
+  background-color: rgb(245, 7, 7);
+}
+
+@media screen and (max-width: 600px) {
+  .todo-form{
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: .5rem;
+  }
+   
+  form{
+    width: 100%;
+    padding: 0.4 rem;
+    margin: 0.4 rem;
+  }
+  
+}
