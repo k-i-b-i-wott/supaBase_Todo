@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
-import './App.css'
+
 import {supabase} from './supabase.client'
-
-
+import {Box, Button, TextField, Typography, Card, CardContent, CardActions} from "@mui/material"
+import { FaPenAlt } from "react-icons/fa";
+import { MdOutlineDelete } from "react-icons/md";
+import { MdOutlineDone } from "react-icons/md";
 interface Task{
   id:number,
   created_at:string,
@@ -13,14 +15,14 @@ const App = () => {
 
 
   return (
-    <div>
-      <h1>Supabase Todo</h1>
-      <div className='todo-form'>
+    <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} sx={{p:2}} alignItems={"center"}>
+      <Typography variant="h4" >Supabase Todo</Typography>
+      <Box  sx={{display: "flex", flexDirection:{xs:"column",md:"row"}}}>
         <CreateTodo />
         <FetchTodos />
-      </div>
+      </Box>
 
-    </div>
+    </Box>
   )
 }
 
@@ -32,11 +34,7 @@ function CreateTodo(){
     description:""
   })
   const handleSubmit= async (e:React.FormEvent<HTMLFormElement>)=>{
-    e.preventDefault()
-    if(task.title.trim()==="" || task.description.trim()===""){
-      alert("Please enter a title and description")
-      return
-    }
+    e.preventDefault()    
     const {error}=await supabase.from("tasks").insert(task).single()
     if(error){
       console.log(error)
@@ -45,23 +43,21 @@ function CreateTodo(){
     setTask({
       title:"",
       description:""
-    });
+    })
   
   }
     return (   
-  <form onSubmit={handleSubmit}>
-    <input type="text"onChange={(e) => setTask((prev) =>({...prev, title: e.target.value}))} placeholder="Enter the tittle" />
-    <textarea  onChange={(e) => setTask((prev) =>({...prev, description: e.target.value}))}   placeholder="Task Description" />
-    <button type="submit" >Submit</button>
-  </form>
+  <Box component={"form"} onSubmit={handleSubmit} maxWidth={"sm"} sx={{p:2}} alignItems={"center"} justifyContent={"center"}>
+    <TextField type="text"onChange={(e) => setTask((prev) =>({...prev, title: e.target.value}))} label="Enter the tittle" fullWidth required sx={{mb:2}} />
+    <TextField multiline minRows={4}  onChange={(e) => setTask((prev) =>({...prev, description: e.target.value}))}   label="Task Description" fullWidth required   sx={{mb:2}} />
+    <Button type="submit" variant="contained" fullWidth>Submit</Button>
+  </Box>
     )
 }
 
 
 function FetchTodos() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [editTasks, setEditTasks] = useState<Task[]>([]);
-  
+  const [tasks, setTasks] = useState<Task[]>([]);  
   const fetchTasks = async () => {
     const { error, data } = await supabase.from("tasks").select("*").order("created_at", { ascending: false })
     if (error) {
@@ -91,25 +87,26 @@ function FetchTodos() {
   }
   return (
     <>
-        <ul>
+        <Box>
           {
             tasks.map((task)=>{
               return (
-                <li key={task.id}>
-                  <div className='task'>
-                    <h2>{task.title}</h2>
-                    <p>{task.description}</p>
-                  </div>
-                  <div className='actions'>
-                    <button type='button' onClick={(e)=>handleUpdate(task.id,e)} className='edit'>Update</button>
-                    <button type='button' onClick={(e)=>handleDelete(task.id,e)} className='delete'>Delete</button>
-                  </div>
-                </li>
+                <Card key={task.id} sx={{mb:2, shadow:3,p:2, alignItems:"center", justifyContent:"center"} }>
+                  <CardContent className='task'>
+                    <Typography variant='h5' fontWeight={"bold"}>{task.title}</Typography>
+                    <Typography variant='body2' fontWeight={"light"}>{task.description}</Typography>
+                  </CardContent>
+                  <CardActions  sx={{display:"flex", justifyContent:"space-between"}} >
+                    <Button type='button' variant='contained' onClick={(e)=>handleUpdate(task.id,e)} endIcon={<FaPenAlt/>} >Update</Button>
+                    <Button type='button'  onClick={(e)=>handleDelete(task.id,e)} variant='contained'  endIcon={<MdOutlineDelete/>}sx={{backgroundColor:"red"}} >Delete</Button>
+                    <Button type='button' variant='contained' sx={{backgroundColor:"green"}} endIcon={<MdOutlineDone />}>Mark complete</Button>
+                  </CardActions>
+                </Card>
               )
             })
           }
       
-   </ul>
+   </Box>
     </>
   )
 }
