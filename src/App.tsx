@@ -12,8 +12,6 @@ interface Task{
   description:string
 }
 const App = () => {
-
-
   return (
     <Box display={"flex"} flexDirection={"column"} justifyContent={"center"} sx={{p:2}} alignItems={"center"}>
       <Typography variant="h4" >Supabase Todo</Typography>
@@ -29,6 +27,7 @@ const App = () => {
 export default App
 
 function CreateTodo(){
+  
   const [task,setTask]=useState({
     title:"",
     description:""
@@ -38,12 +37,10 @@ function CreateTodo(){
     const {error}=await supabase.from("tasks").insert(task).single()
     if(error){
       console.log(error)
-    }
-
-    setTask({
-      title:"",
-      description:""
-    })
+    }else{
+    setTask({ title:"", description:""})    
+    
+  }
   
   }
     return (   
@@ -58,6 +55,7 @@ function CreateTodo(){
 
 function FetchTodos() {
   const [tasks, setTasks] = useState<Task[]>([]);  
+  const [updateTask, setUpdateTask]= useState<{id:number | null; title:string; description:string}>({id:null,title:"",description:""})
   const fetchTasks = async () => {
     const { error, data } = await supabase.from("tasks").select("*").order("created_at", { ascending: false })
     if (error) {
@@ -65,6 +63,7 @@ function FetchTodos() {
     }
     setTasks(data || []);
   }
+ 
 
   useEffect(() => {
     fetchTasks();
@@ -75,19 +74,42 @@ function FetchTodos() {
     const {error}=await supabase.from("tasks").delete().eq("id",id)
     if(error){
       console.log("Error deleting task:", error);
+    }else{
+      fetchTasks()
     }
+  
   }
+  const handleEditClick = (task: Task) => {
+    setUpdateTask({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+    });
+  };
 
-  const handleUpdate= async (id:number,e:React.MouseEvent<HTMLButtonElement>)=>{
+  const handleUpdate= async (e:React.MouseEvent<HTMLButtonElement>)=>{
     e.preventDefault()
-    const {error}= await supabase.from("tasks").update({title:"Updated title",description:"Updated description"}).eq("id",id)
+    const {error}= await supabase.from("tasks").update({title:updateTask.title,description:updateTask.description}).eq("id",updateTask.id)
     if(error){
       console.log("Error updating task:", error);
+    }else{
+      fetchTasks()
+      setUpdateTask({id:null,title:"",description:""})
     }
   }
   return (
     <>
         <Box>
+        {
+          updateTask.id && (
+            <Box component={"form"}  maxWidth={"sm"} sx={{p:2}} alignItems={"center"} justifyContent={"center"}>
+            <TextField type="text"onChange={(e) => setUpdateTask((prev) =>({...prev, title: e.target.value}))} label="Enter the tittle" fullWidth required sx={{mb:2}} />
+            <TextField multiline minRows={4}  onChange={(e) => setUpdateTask((prev) =>({...prev, description: e.target.value}))}   label="Task Description" fullWidth required   sx={{mb:2}} />
+            <Button type="submit" variant="contained" onClick={handleUpdate}  fullWidth sx={{mb:2}}>Save Changes</Button>
+            <Button type='button' onClick={() => setUpdateTask({id: null, title: "", description: ""})} variant='contained' fullWidth sx={{mb:2}}>Cancel</Button>
+          </Box>
+          )
+        }
           {
             tasks.map((task)=>{
               return (
@@ -96,8 +118,8 @@ function FetchTodos() {
                     <Typography variant='h5' fontWeight={"bold"}>{task.title}</Typography>
                     <Typography variant='body2' fontWeight={"light"}>{task.description}</Typography>
                   </CardContent>
-                  <CardActions  sx={{display:"flex", justifyContent:"space-between"}} >
-                    <Button type='button' variant='contained' onClick={(e)=>handleUpdate(task.id,e)} endIcon={<FaPenAlt/>} >Update</Button>
+                  <CardActions  sx={{display:"flex", flexDirection:{xs:"column", md:"row"}, gap:2, justifyContent:"space-between"}} >
+                    <Button type='button' variant='contained' onClick={() => handleEditClick(task)} endIcon={<FaPenAlt/>} >Update</Button>
                     <Button type='button'  onClick={(e)=>handleDelete(task.id,e)} variant='contained'  endIcon={<MdOutlineDelete/>}sx={{backgroundColor:"red"}} >Delete</Button>
                     <Button type='button' variant='contained' sx={{backgroundColor:"green"}} endIcon={<MdOutlineDone />}>Mark complete</Button>
                   </CardActions>
@@ -110,3 +132,4 @@ function FetchTodos() {
     </>
   )
 }
+
