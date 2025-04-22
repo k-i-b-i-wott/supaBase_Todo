@@ -5,11 +5,13 @@ import {Box, Button, TextField, Typography, Card, CardContent, CardActions} from
 import { FaPenAlt } from "react-icons/fa";
 import { MdOutlineDelete } from "react-icons/md";
 import { MdOutlineDone } from "react-icons/md";
+import { IoCheckmarkDoneSharp } from "react-icons/io5";
 interface Task{
   id:number,
   created_at:string,
   title:string,
-  description:string
+  description:string,
+  isDone:boolean
 }
 const App = () => {
   return (
@@ -55,6 +57,7 @@ function CreateTodo(){
 
 function FetchTodos() {
   const [tasks, setTasks] = useState<Task[]>([]);  
+ 
   const [updateTask, setUpdateTask]= useState<{id:number | null; title:string; description:string}>({id:null,title:"",description:""})
   const fetchTasks = async () => {
     const { error, data } = await supabase.from("tasks").select("*").order("created_at", { ascending: false })
@@ -97,6 +100,15 @@ function FetchTodos() {
       setUpdateTask({id:null,title:"",description:""})
     }
   }
+  const handleDone= async (id:number, isDone: boolean , e: React.MouseEvent<HTMLButtonElement>)=>{
+    e.preventDefault()
+    const {error}= await supabase.from("tasks").update({isDone:!isDone}).eq("id",id)
+    if(error){
+      console.log("Error updating task:", error);
+    }else{
+      fetchTasks()
+    }
+  }
   return (
     <>
         <Box>
@@ -115,13 +127,13 @@ function FetchTodos() {
               return (
                 <Card key={task.id} sx={{mb:2, shadow:3,p:2, alignItems:"center", justifyContent:"center"} }>
                   <CardContent className='task'>
-                    <Typography variant='h5' fontWeight={"bold"}>{task.title}</Typography>
-                    <Typography variant='body2' fontWeight={"light"}>{task.description}</Typography>
+                    <Typography variant='h5' fontWeight={"bold"} sx={{textDecoration: task.isDone ? "line-through":"none"}}>{task.title}</Typography>
+                    <Typography variant='body2' fontWeight={"light"}sx={{textDecoration: task.isDone ? "line-through":"none"}}>{task.description}</Typography>
                   </CardContent>
                   <CardActions  sx={{display:"flex", flexDirection:{xs:"column", md:"row"}, gap:2, justifyContent:"space-between"}} >
                     <Button type='button' variant='contained' onClick={() => handleEditClick(task)} endIcon={<FaPenAlt/>} >Update</Button>
                     <Button type='button'  onClick={(e)=>handleDelete(task.id,e)} variant='contained'  endIcon={<MdOutlineDelete/>}sx={{backgroundColor:"red"}} >Delete</Button>
-                    <Button type='button' variant='contained' sx={{backgroundColor:"green"}} endIcon={<MdOutlineDone />}>Mark complete</Button>
+                    <Button type='button' variant='contained' onClick={(e)=>handleDone(task.id,task.isDone,e)} sx={{backgroundColor:"green"}} endIcon={task.isDone ? <MdOutlineDone/> : <IoCheckmarkDoneSharp/>}>{task.isDone ? "Mark as Pending" : "Mark as Complete"}</Button>
                   </CardActions>
                 </Card>
               )
